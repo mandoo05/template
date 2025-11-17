@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: template
+
+jwt:
+  secret-key: ${JWT_SECRET}
+  access-token-expire-ms: ${JWT_ACCESS_EXPIRE}
+  refresh-token-expire-ms: ${JWT_REFRESH_EXPIRE}
