@@ -2,7 +2,36 @@ spring:
   application:
     name: template
 
+  flyway:
+    baseline-on-migrate: true
+
+  datasource:
+    url: jdbc:postgresql://${dbUrl}/${dbName}
+    username: ${dbUser}
+    password: ${dbPass}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+
 jwt:
   secret-key: ${JWT_SECRET}
+  refresh-secret-key: ${JWT_REFRESH_SECRET}
   access-token-expire-ms: ${JWT_ACCESS_EXPIRE}
   refresh-token-expire-ms: ${JWT_REFRESH_EXPIRE}
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true

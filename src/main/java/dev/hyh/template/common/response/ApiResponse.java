@@ -14,37 +14,37 @@ public class ApiResponse<T> {
 
     private String message;
     private String code;
-    private T payload;
+    private T data;
 
-    public static <T> ApiResponse<T> success(T payload) {
-        return ApiResponse.<T>builder().message("").code(SUCCESS).payload(payload).build();
+    public static <T> ApiResponse<T> success(T data) {
+        return ApiResponse.<T>builder().message("").code(SUCCESS).data(data).build();
     }
 
-    public static <T> ApiResponse<T> success(String message, T payload) {
-        return ApiResponse.<T>builder().message(message).code(SUCCESS).payload(payload).build();
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return ApiResponse.<T>builder().message(message).code(SUCCESS).data(data).build();
     }
 
     public static ApiResponse<Void> noContentSuccess() {
-        return ApiResponse.<Void>builder().message("").code(SUCCESS).payload(null).build();
+        return ApiResponse.<Void>builder().message("").code(SUCCESS).data(null).build();
     }
 
     public static ApiResponse<Void> noContentSuccess(String message) {
-        return ApiResponse.<Void>builder().message(message).code(SUCCESS).payload(null).build();
+        return ApiResponse.<Void>builder().message(message).code(SUCCESS).data(null).build();
     }
 
-    public static <T> ApiResponse<T> error(String message, String code, T payload) {
-        return ApiResponse.<T>builder().message(message).code(code).payload(payload).build();
+    public static <T> ApiResponse<T> error(String message, String code, T data) {
+        return ApiResponse.<T>builder().message(message).code(code).data(data).build();
     }
 
     public static ApiResponse<Void> error(String message, String code) {
-        return ApiResponse.<Void>builder().message(message).code(code).payload(null).build();
+        return ApiResponse.<Void>builder().message(message).code(code).data(null).build();
     }
 
     public static ApiResponse<Void> error(CustomRuntimeException e) {
         return ApiResponse.<Void>builder()
                 .message(e.getMessage())
                 .code(e.getCode())
-                .payload(null)
+                .data(null)
                 .build();
     }
 }

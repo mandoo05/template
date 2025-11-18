@@ -1,16 +1,14 @@
 package dev.hyh.template.domain.member.infra;
 
 import dev.hyh.template.domain.member.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
 
@@ -19,7 +17,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE id = ?")
+@Table(name = "USERS")
+@SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
 public class User {
     @Id
@@ -34,5 +33,10 @@ public class User {
     @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     private Role role;
+
+    public void updatePassword(String password, PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder != null ? passwordEncoder.encode(password) : password;
+    }
 }

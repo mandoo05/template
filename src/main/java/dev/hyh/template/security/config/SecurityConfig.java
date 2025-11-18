@@ -1,66 +1,82 @@
 package dev.hyh.template.security.config;
 
+import dev.hyh.template.security.auth.CustomUserDetailsService;
+import dev.hyh.template.security.handler.LoginFailureHandler;
+import dev.hyh.template.security.handler.LoginSuccessHandler;
+import dev.hyh.template.security.jwt.JwtAuthenticationFilter;
+import dev.hyh.template.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
-    private final LoginFilter loginFilter;
+    private final CustomUserDetailsService userDetailsService;
+    private final LoginSuccessHandler loginSuccessHandler;
+    private final LoginFailureHandler loginFailureHandler;
+    private final JwtProvider jwtProvider;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
-    /**
-     * 🔥 CORS 기본 템플릿
-     */
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        config.setAllowedOrigins(List.of("*"));
-        config.setAllowedMethods(List.of("*"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
-        config.setAllowCredentials(false); // '*'일 때 true 불가
-        config.setMaxAge(3600L);
+        return http
+                .csrf(csrf -> csrf.disable())
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
+                // 🔥 템플릿용: 모든 CORS 허용
+                .cors(cors -> cors.configurationSource(request -> {
+                    var c = new org.springframework.web.cors.CorsConfiguration();
+                    c.addAllowedOriginPattern("*");
+                    c.addAllowedHeader("*");
+                    c.addAllowedMethod("*");
+                    c.setAllowCredentials(true);
+                    return c;
+                }))
+
+                // 🔥 JWT 환경: 세션 미사용
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 🔥 form login 유지 (/login)
+                .formLogin(form -> form
+                        .loginProcessingUrl("/login")
+                        .successHandler(loginSuccessHandler)
+                        .failureHandler(loginFailureHandler)
+                )
+
+                // 🔥 템플릿이므로 모든 요청 허용
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+
+                // 🔥 JWT 인증 필터
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtProvider, userDetailsService),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+
+                .build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
