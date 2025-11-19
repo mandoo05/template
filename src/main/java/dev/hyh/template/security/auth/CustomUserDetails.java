@@ -11,6 +11,7 @@ import java.util.Collection;
 @Builder
 public class CustomUserDetails implements UserDetails {
 
+    private final String id;
     private final String userId;
     private final String username;
     private final String password;

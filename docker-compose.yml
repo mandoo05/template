@@ -2,14 +2,19 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:16
     container_name: postgres_template
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: template
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASS:-1234}
+      POSTGRES_DB: ${DB_NAME:-template}
     ports:
       - "5432:5432"
 
-volumes:
-  postgres_data:
+  redis:
+    image: redis:7
+    container_name: redis_template
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]  # AOF 방식 → 실무에서 가장 안전
+    ports:
+      - "6379:6379"

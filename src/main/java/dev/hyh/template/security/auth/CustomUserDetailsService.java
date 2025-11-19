@@ -23,8 +23,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid username"));
 
         return CustomUserDetails.builder()
-                .userId(String.valueOf(user.getId()))
-                .username(user.getUsername())
+                .id(String.valueOf(user.getId()))
+                .userId(user.getUsername())
+                .username(user.getName())
                 .password(user.getPassword())
                 .authorities(Collections.singleton(
                         new SimpleGrantedAuthority(user.getRole().name())

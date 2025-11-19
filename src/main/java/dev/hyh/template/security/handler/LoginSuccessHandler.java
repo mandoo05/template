@@ -2,8 +2,10 @@ package dev.hyh.template.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hyh.template.common.response.ApiResponse;
+import dev.hyh.template.security.JwtResponse;
 import dev.hyh.template.security.auth.CustomUserDetails;
 import dev.hyh.template.security.jwt.JwtProvider;
+import dev.hyh.template.security.redis.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -12,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -20,6 +22,7 @@ import java.util.*;
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -37,14 +40,22 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         );
 
         String accessToken = jwtProvider.createAccessToken(user.getUserId(), claims);
+        String refreshToken = jwtProvider.createRefreshToken(user.getUserId());
 
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("accessToken", "Bearer " + accessToken);
+        // 🔥 Redis에 RefreshToken 저장
+        refreshTokenRepository.save(
+                user.getUserId(),
+                refreshToken,
+                jwtProvider.getRefreshTokenExpireMs()
+        );
 
-        ApiResponse<Object> apiResponse = ApiResponse.success(payload);
+        // 🔥 API 응답
+        ApiResponse<?> result = ApiResponse.success(
+                JwtResponse.from(accessToken)
+        );
 
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+        response.getWriter().write(objectMapper.writeValueAsString(result));
 
         log.info("LOGIN SUCCESS → {}", user.getUsername());
     }

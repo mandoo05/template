@@ -1,5 +1,6 @@
 package dev.hyh.template.domain.member.infra;
 
+import dev.hyh.template.common.BaseSoftDeleteTimeEntity;
 import dev.hyh.template.domain.member.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Table(name = "USERS")
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
-public class User {
+public class User extends BaseSoftDeleteTimeEntity {
     @Id
     @GeneratedValue
     private UUID id;

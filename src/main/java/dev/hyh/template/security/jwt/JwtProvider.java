@@ -69,6 +69,11 @@ public class JwtProvider {
                 .compact();
     }
 
+    public String recreateAccessToken(String userId) {
+        Map<String, Object> claims = Map.of("userId", userId);
+        return createAccessToken(userId, claims);
+    }
+
 
     /** AccessToken Claims 파싱 */
     public Claims getAccessClaims(String token) {
@@ -107,5 +112,9 @@ public class JwtProvider {
         } catch (JwtException e) {
             return false;
         }
+    }
+
+    public long getRefreshTokenExpireMs() {
+        return properties.getRefreshTokenExpireMs();
     }
 }

@@ -23,6 +23,11 @@ spring:
     serialization:
       INDENT_OUTPUT: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 jwt:
   secret-key: ${JWT_SECRET}
   refresh-secret-key: ${JWT_REFRESH_SECRET}
