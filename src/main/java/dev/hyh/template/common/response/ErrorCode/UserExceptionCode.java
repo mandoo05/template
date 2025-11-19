@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserExceptionCode {
+public enum UserExceptionCode implements ErrorCodeType {
     // 000번대: 사용자에게 문제가 없으나 요청 처리 중 문제가 발생한 경우
     USER_NOT_FOUND("USR001"), // 사용자를 찾을 수 없음
     DUPLICATE_USER("USR002"), // 이미 존재하는 사용자

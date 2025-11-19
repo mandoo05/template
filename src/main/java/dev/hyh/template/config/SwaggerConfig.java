@@ -35,26 +35,36 @@ public class SwaggerConfig {
      * 🔹 @PreAuthorize 기반으로 API별 자물쇠 표시
      */
     @Bean
-    public GroupedOpenApi groupedOpenApi() {
+    public GroupedOpenApi defaultApi() {
         return GroupedOpenApi.builder()
                 .group("default")
+                .packagesToScan("dev.hyh.template")     // 전체 스캔
+                .pathsToExclude("/docs/error/**")       // 에러 문서 제외
                 .addOperationCustomizer((operation, handlerMethod) -> {
 
-                    // ApiTag 추가
                     Optional.ofNullable(handlerMethod.getBeanType().getAnnotation(ApiTag.class))
                             .ifPresent(apiTag -> operation.addTagsItem(apiTag.name()));
 
-                    // 메서드/클래스 단위의 @PreAuthorize 탐지
                     PreAuthorize methodAuth = AnnotationUtils.findAnnotation(handlerMethod.getMethod(), PreAuthorize.class);
                     PreAuthorize classAuth = AnnotationUtils.findAnnotation(handlerMethod.getBeanType(), PreAuthorize.class);
 
-                    // 인증이 필요한 경우에만 bearerAuth 보안 추가
+                    // 인증이 필요한 경우만 Swagger에 Security 표시
                     if (isSecured(methodAuth) || isSecured(classAuth)) {
-                        operation.addSecurityItem(new io.swagger.v3.oas.models.security.SecurityRequirement().addList("bearerAuth"));
+                        operation.addSecurityItem(
+                                new io.swagger.v3.oas.models.security.SecurityRequirement().addList("bearerAuth")
+                        );
                     }
 
                     return operation;
                 })
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi errorApi() {
+        return GroupedOpenApi.builder()
+                .group("Error")                    // Swagger UI 좌측에 Error 그룹 생성
+                .pathsToMatch("/docs/error/**")     // 에러코드 API만 포함
                 .build();
     }
 

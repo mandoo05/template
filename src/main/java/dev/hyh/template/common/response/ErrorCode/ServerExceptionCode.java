@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ServerExceptionCode {
+public enum ServerExceptionCode implements ErrorCodeType {
     // 000번대: 일반 서버 오류
     INTERNAL_SERVER_ERROR("SRV000"), // 알 수 없는 서버 오류
     SERVICE_UNAVAILABLE("SRV001"), // 서비스 일시 중단 또는 준비되지 않음

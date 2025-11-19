@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum AuthExceptionCode {
+public enum AuthExceptionCode implements ErrorCodeType {
     // 000번대 - 인증(Authentication) 관련
     AUTHENTICATION_FAILED("AUTH000"), // 인증 실패
     INVALID_CREDENTIALS("AUTH001"), // 아이디 또는 비밀번호가 잘못됨
@@ -25,4 +25,6 @@ public enum AuthExceptionCode {
     TOKEN_EXPIRED("AUTH202"); // 인증 토큰 만료됨
 
     private final String code;
+
+    public String getCode() { return code; }
 }

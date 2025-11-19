@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum RequestExceptionCode {
+public enum RequestExceptionCode implements ErrorCodeType {
     // 000번대: 클라이언트 요청 자체의 문제
     INVALID_PARAMETER("REQ000"), // 요청 파라미터가 유효하지 않음
     MISSING_PARAMETER("REQ001"), // 필수 파라미터가 누락됨
