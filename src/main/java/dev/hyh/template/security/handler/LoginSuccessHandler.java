@@ -2,8 +2,7 @@ package dev.hyh.template.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hyh.template.common.response.ApiResponse;
-import dev.hyh.template.security.JwtResponse;
-import dev.hyh.template.security.auth.CustomUserDetails;
+import dev.hyh.template.security.auth.CustomMemberDetails;
 import dev.hyh.template.security.jwt.JwtProvider;
 import dev.hyh.template.security.redis.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,27 +31,23 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             Authentication authentication
     ) throws IOException {
 
-        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        CustomMemberDetails user = (CustomMemberDetails) authentication.getPrincipal();
 
         Map<String, Object> claims = Map.of(
                 "username", user.getUsername(),
                 "role", user.getAuthorities().iterator().next().getAuthority()
         );
 
-        String accessToken = jwtProvider.createAccessToken(user.getUserId(), claims);
-        String refreshToken = jwtProvider.createRefreshToken(user.getUserId());
+        String accessToken = jwtProvider.createAccessToken(user.getUsername(), claims);
+        String refreshToken = jwtProvider.createRefreshToken(user.getUsername());
 
-        // 🔥 Redis에 RefreshToken 저장
         refreshTokenRepository.save(
-                user.getUserId(),
+                user.getUsername(),
                 refreshToken,
                 jwtProvider.getRefreshTokenExpireMs()
         );
 
-        // 🔥 API 응답
-        ApiResponse<?> result = ApiResponse.success(
-                JwtResponse.from(accessToken)
-        );
+        ApiResponse<String> result = ApiResponse.success("Bearer " + accessToken);
 
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(result));

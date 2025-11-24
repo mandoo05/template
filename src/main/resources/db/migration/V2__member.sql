@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS member CASCADE;
 
-CREATE TABLE users
+CREATE TABLE member
 (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_v7(),
     username   VARCHAR(255) NOT NULL UNIQUE,
     password   VARCHAR(255),
     name       VARCHAR(255) NOT NULL,

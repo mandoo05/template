@@ -1,6 +1,6 @@
 package dev.hyh.template.security.jwt;
 
-import dev.hyh.template.security.auth.CustomUserDetailsService;
+import dev.hyh.template.security.auth.CustomMemberDetailsService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomMemberDetailsService userDetailsService;
 
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
@@ -34,19 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                // 1️⃣ AccessToken 검증
                 if (jwtProvider.validateAccessToken(token)) {
-
-                    // 2️⃣ Claims 추출
                     Claims claims = jwtProvider.getAccessClaims(token);
-
-                    // 3️⃣ username 가져오기
                     String username = claims.get("username", String.class);
-
-                    // 4️⃣ UserDetails 조회
                     var userDetails = userDetailsService.loadUserByUsername(username);
-
-                    // 5️⃣ SecurityContext 저장
                     var auth = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
 

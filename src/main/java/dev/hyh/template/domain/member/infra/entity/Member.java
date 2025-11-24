@@ -1,7 +1,7 @@
-package dev.hyh.template.domain.member.infra;
+package dev.hyh.template.domain.member.infra.entity;
 
 import dev.hyh.template.common.BaseSoftDeleteTimeEntity;
-import dev.hyh.template.domain.member.Role;
+import dev.hyh.template.domain.member.dto.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,12 +18,13 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "USERS")
-@SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
+@Table(name = "member")
+@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
-public class User extends BaseSoftDeleteTimeEntity {
+public class Member extends BaseSoftDeleteTimeEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "uuid DEFAULT uuid_v7()")
     private UUID id;
 
     @Column(nullable = false, unique = true, updatable = false)

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
+import static dev.hyh.template.common.response.ErrorCode.ErrorCode.INVALID_CREDENTIALS;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,11 +32,10 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
 
-        // ApiResponse 기반 실패 JSON
         ApiResponse<Void> errorResponse =
                 ApiResponse.error(
                         "아이디 또는 비밀번호가 일치하지 않습니다.",
-                        "AUTH001"
+                        INVALID_CREDENTIALS.getCode()
                 );
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

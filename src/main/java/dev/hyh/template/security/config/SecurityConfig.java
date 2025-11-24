@@ -1,6 +1,6 @@
 package dev.hyh.template.security.config;
 
-import dev.hyh.template.security.auth.CustomUserDetailsService;
+import dev.hyh.template.security.auth.CustomMemberDetailsService;
 import dev.hyh.template.security.handler.LoginFailureHandler;
 import dev.hyh.template.security.handler.LoginSuccessHandler;
 import dev.hyh.template.security.jwt.JwtAuthenticationFilter;
@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomMemberDetailsService memberDetailsService;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
     private final JwtProvider jwtProvider;
@@ -68,7 +68,7 @@ public class SecurityConfig {
 
                 // 🔥 JWT 인증 필터
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtProvider, userDetailsService),
+                        new JwtAuthenticationFilter(jwtProvider, memberDetailsService),
                         UsernamePasswordAuthenticationFilter.class
                 )
 

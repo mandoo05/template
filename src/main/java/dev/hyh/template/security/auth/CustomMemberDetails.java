@@ -9,11 +9,11 @@ import java.util.Collection;
 
 @Getter
 @Builder
-public class CustomUserDetails implements UserDetails {
+public class CustomMemberDetails implements UserDetails {
 
     private final String id;
-    private final String userId;
     private final String username;
+    private final String name;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
